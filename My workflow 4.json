@@ -1,0 +1,127 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "3b562e6a-8af7-463c-a2a5-9db837f7fe1c",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ac07bd0f-8a2f-404f-9912-8e58319d1cea",
+      "name": "Webhook",
+      "webhookId": "3b562e6a-8af7-463c-a2a5-9db837f7fe1c"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a professional and friendly email to a user. The purpose of the email is to send them{{ $json.body.linkedin_post }} the LinkedIn post that was generated \n\nBegin the email with a short greeting and mention that their requested LinkedIn post is ready. Present the LinkedIn post inside a blockquote or markdown-style format to make it stand out.\n\nEnd the email politely, encouraging them to review the post and edit if needed before posting it on LinkedIn.\n\nKeep the email short and friendly.{{ $json.headers }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "bc6fda61-db78-4ec9-8b16-8c6e9313786b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        240,
+        220
+      ],
+      "id": "f3956371-6857-4cd0-bead-c34a6cf26f9c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EvHmtQDEqReuGnXf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "mathiyarasi680@gmail.com",
+        "subject": "linkedin post",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        580,
+        0
+      ],
+      "id": "07783d1f-8d93-49e2-92d8-3ca3c9de10bc",
+      "name": "Send a message",
+      "webhookId": "facb5dd6-5caf-42d1-9946-b15d67e7fb0b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1Gyx4aWiaaHBTJn7",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f522f33e-d957-465f-b2dd-f614a533427a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "80742d88af22c65b805f37805da3031e1f16968b86e2e41a2d3570c02419b8e8"
+  },
+  "id": "lBIhwiR1nvYiGrkQ",
+  "tags": []
+}
