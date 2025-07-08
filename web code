@@ -1,0 +1,58 @@
+import streamlit as st
+import google.generativeai as genai
+import requests
+
+# Configure Gemini API key
+genai.configure(api_key="AIzaSyBx1A_cSsrlqRrnxfcA_gPuavZ6sIgNCis")
+model = genai.GenerativeModel("models/gemini-2.0-flash")
+
+# Your n8n webhook URL (replace with your actual webhook URL)
+n8n_url = "https://mathiyarasi680.app.n8n.cloud/webhook-test/3b562e6a-8af7-463c-a2a5-9db837f7fe1c"
+
+st.title("🔗 LinkedIn Post Generator with Google Gemini")
+
+bullet_points = st.text_area(
+    "📌 Enter your bullet-point ideas (one per line):",
+    placeholder="- Launched new feature\n- Increased sales by 20%\n- Improved team collaboration",
+    height=200
+)
+
+tone = st.selectbox("🎯 Choose the tone:", ["Professional", "Casual"])
+
+if st.button("Generate LinkedIn Post"):
+    if not bullet_points.strip():
+        st.warning("Please enter some bullet points!")
+    else:
+        prompt = f"""
+You are a professional LinkedIn content writer.
+
+Transform the following bullet points into a polished LinkedIn post with a {tone.lower()} tone. Use formatting, emojis if appropriate, and end with relevant hashtags.
+
+Bullet Points:
+{bullet_points}
+
+Write the complete LinkedIn post:
+"""
+        with st.spinner("Generating post..."):
+            try:
+                response = model.generate_content(prompt)
+                generated_post = response.text.strip()
+
+                st.success("Generated LinkedIn Post:")
+                st.text_area("✍️ Your Post:", value=generated_post, height=300)
+
+                # Send data to n8n webhook
+                payload = {
+                    "bullet_points": bullet_points,
+                    "tone": tone,
+                    "linkedin_post": generated_post
+                }
+                webhook_response = requests.post(n8n_url, json=payload)
+
+                if webhook_response.status_code == 200:
+                    st.success("✅ Post sent to n8n webhook successfully!")
+                else:
+                    st.warning(f"⚠️ Failed to send post to n8n webhook. Status code: {webhook_response.status_code}")
+
+            except Exception as e:
+                st.error(f"Error generating post: {e}")
